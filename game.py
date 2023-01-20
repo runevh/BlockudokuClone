@@ -13,7 +13,7 @@ def init_blocks():
     for _ in range(0, 9):
         row = []
         for _ in range(0, 9):
-            row.append(random.randint(0, 1))
+            row.append(0)
         occupied_blocks.append(row)
 
 
@@ -92,20 +92,7 @@ def update_hold(screen):
     x = coords[0] - ((selected_block.get_width() * block.size) / 2)
     y = coords[1] - ((selected_block.get_height() * block.size) / 2)
 
-    temp_r = []
-    for bb in selected_block.get_block_shape():
-        mid_x = x + bb[0] * block.size + block.size / 2
-        mid_y = y + bb[1] * block.size + block.size / 2
-        r = get_raster_block(mid_x, mid_y)
-        if r == -1:
-            temp_r = []
-            break
-        if get_block_state(r[0], r[1]) == 1:
-            temp_r = []
-            break
-        temp_r.append(r)
-
-    for r in temp_r:
+    for r in get_free_places():
         pygame.draw.rect(screen, util.Color.LIGHTGRAY.value,
                          pygame.Rect(offset[0] + (r[0]) * block.size, offset[1] + (r[1]) * block.size, block.size,
                                      block.size))
@@ -114,9 +101,9 @@ def update_hold(screen):
 
 
 def get_raster_block(x_cord, y_cord):
-    if x_cord - offset[0] < -block.size / 2:
+    if x_cord - offset[0] < 0:
         return -1
-    if y_cord - offset[1] < -block.size / 2:
+    if y_cord - offset[1] < 0:
         return -1
     x = int((x_cord - offset[0]) / block.size)
     y = int((y_cord - offset[1]) / block.size)
@@ -130,10 +117,38 @@ def get_block_state(x_cord, y_cord):
     return occ
 
 
+def get_free_places():
+    temp_r = []
+    if selected_block == 0:
+        return temp_r
+
+    coords = pygame.mouse.get_pos()
+    x = coords[0] - ((selected_block.get_width() * block.size) / 2)
+    y = coords[1] - ((selected_block.get_height() * block.size) / 2)
+
+    for bb in selected_block.get_block_shape():
+        mid_x = x + bb[0] * block.size + block.size / 2
+        mid_y = y + bb[1] * block.size + block.size / 2
+        r = get_raster_block(mid_x, mid_y)
+        if r == -1:
+            temp_r = []
+            break
+        if get_block_state(r[0], r[1]) == 1:
+            temp_r = []
+            break
+        temp_r.append(r)
+
+    return temp_r
+
+
 def stop_hold():
     global held, selected_block, temp_index
     held = False
     new_blocks[temp_index] = selected_block
+
+    for r in get_free_places():
+        occupied_blocks[r[1]][r[0]] = 1
+
     selected_block = 0
     temp_index = -1
 
