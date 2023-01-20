@@ -89,10 +89,45 @@ def update_hold(screen):
     if selected_block == 0:
         return
     coords = pygame.mouse.get_pos()
-    selected_block.render(screen, coords[0] - ((selected_block.get_width() * block.size) / 2),
-                          coords[1] - ((selected_block.get_height() * block.size) / 2))
+    x = coords[0] - ((selected_block.get_width() * block.size) / 2)
+    y = coords[1] - ((selected_block.get_height() * block.size) / 2)
 
-    # offset[0] + x * block.size, offset[1] + y * block.size
+    temp_r = []
+    for bb in selected_block.get_block_shape():
+        mid_x = x + bb[0] * block.size + block.size / 2
+        mid_y = y + bb[1] * block.size + block.size / 2
+        r = get_raster_block(mid_x, mid_y)
+        if r == -1:
+            temp_r = []
+            break
+        if get_block_state(r[0], r[1]) == 1:
+            temp_r = []
+            break
+        temp_r.append(r)
+
+    for r in temp_r:
+        pygame.draw.rect(screen, util.Color.LIGHTGRAY.value,
+                         pygame.Rect(offset[0] + (r[0]) * block.size, offset[1] + (r[1]) * block.size, block.size,
+                                     block.size))
+
+    selected_block.render(screen, x, y)
+
+
+def get_raster_block(x_cord, y_cord):
+    if x_cord - offset[0] < -block.size / 2:
+        return -1
+    if y_cord - offset[1] < -block.size / 2:
+        return -1
+    x = int((x_cord - offset[0]) / block.size)
+    y = int((y_cord - offset[1]) / block.size)
+    if x > 8 or y > 8:
+        return -1
+    return x, y
+
+
+def get_block_state(x_cord, y_cord):
+    occ = (occupied_blocks[y_cord])[x_cord]
+    return occ
 
 
 def stop_hold():
