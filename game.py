@@ -163,7 +163,15 @@ def stop_hold():
         occupied_blocks[r[1]][r[0]] = 1
 
     if succesfully_placed:
+        new_blocks[temp_index] = 0
         score += selected_block.get_amount_of_blocks()
+        all_blocks_placed = True
+        for b in new_blocks:
+            if b != 0:
+                all_blocks_placed = False
+                break
+        if all_blocks_placed:
+            generate_new_blocks()
 
     selected_block = 0
     temp_index = -1
