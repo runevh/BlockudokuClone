@@ -81,12 +81,11 @@ def start_hold():
     coords = pygame.mouse.get_pos()
     for i in range(0, 3):
         b = new_blocks[i]
-        if not is_clicked(coords, i, b):
-            continue
-        selected_block = b
-        temp_index = i
-        new_blocks[i] = 0
-        break
+        if is_clicked(coords, i, b):
+            selected_block = b
+            temp_index = i
+            new_blocks[i] = 0
+            break
 
 
 def update_hold(screen):
@@ -151,6 +150,10 @@ def get_free_places():
 def stop_hold():
     global held, selected_block, temp_index, score
     held = False
+
+    if temp_index == -1:
+        return
+
     new_blocks[temp_index] = selected_block
 
     succesfully_placed = False
@@ -161,7 +164,6 @@ def stop_hold():
 
     if succesfully_placed:
         score += selected_block.get_amount_of_blocks()
-        print(score)
 
     selected_block = 0
     temp_index = -1
