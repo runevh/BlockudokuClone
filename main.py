@@ -1,7 +1,4 @@
-import random
-
 import pygame
-
 import block
 import util
 import game
@@ -26,6 +23,7 @@ def main():
         game.update_removal()
         game.render(screen)
         game.update_hold(screen)
+        game.render_score(screen)
         pygame.display.flip()
     pygame.quit()
 
@@ -36,10 +34,10 @@ last_shown_fps = 0
 def render_fps(screen, fps):
     global last_rendered_fps, last_shown_fps
     if (util.get_current_millis() - last_rendered_fps) < 100:
-        util.renderText(screen, "FPS: {0}".format(last_shown_fps), 5, 5)
+        util.renderText(screen, "FPS: {0}".format(last_shown_fps), 5, 5, 10)
         return
     last_shown_fps = fps
-    util.renderText(screen, "FPS: {0}".format(fps), 5, 5)
+    util.renderText(screen, "FPS: {0}".format(fps), 5, 5, 10)
 
     last_rendered_fps = util.get_current_millis()
 
@@ -53,6 +51,7 @@ def check_events():
             game.start_hold()
         elif event.type == pygame.MOUSEBUTTONUP:
             game.stop_hold()
+
 
 if __name__ == '__main__':
     main()

@@ -38,6 +38,9 @@ class Block:
             return
         self.rotation = random.randint(0, 4)
 
+    def get_amount_of_blocks(self):
+        return len(self.shape)
+
     def get_width(self):
         if self.rotation == 0 or self.rotation == 2:
             return self.width

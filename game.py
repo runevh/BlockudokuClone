@@ -8,6 +8,7 @@ import block
 offset = [400 / 2 - (block.size * 9 + 2) / 2, 50]
 occupied_blocks = []  # Rows
 new_blocks = []
+score = 0
 
 
 def init_blocks():
@@ -17,6 +18,10 @@ def init_blocks():
         for _ in range(9):
             row.append(0)
         occupied_blocks.append(row)
+
+
+def render_score(screen):
+    util.renderText(screen, "Score: {0}".format(score), 63, 15, 25)
 
 
 def render_blocks(screen):
@@ -144,24 +149,43 @@ def get_free_places():
 
 
 def stop_hold():
-    global held, selected_block, temp_index
+    global held, selected_block, temp_index, score
     held = False
     new_blocks[temp_index] = selected_block
 
+    succesfully_placed = False
+
     for r in get_free_places():
+        succesfully_placed = True
         occupied_blocks[r[1]][r[0]] = 1
+
+    if succesfully_placed:
+        score += selected_block.get_amount_of_blocks()
+        print(score)
 
     selected_block = 0
     temp_index = -1
 
 
+removed_blocks = 0
+combo = 0
+
+
 def update_removal():
+    global score, removed_blocks, combo
     rows_n = check_rows_for_completion()
     collums = check_collums_for_completion()
     squares = check_squares_for_completion()
     remove_culloms(collums)
     remove_rows(rows_n)
     remove_squares(squares)
+    if removed_blocks > 0:
+        combo += 1
+        score += int(((removed_blocks / 9) * 16) * combo)
+    else:
+        combo = 0
+    # 15 points extra score
+    removed_blocks = 0
 
 
 def check_squares_for_completion():
@@ -212,25 +236,35 @@ def check_collums_for_completion():
 
 
 def remove_culloms(culloms):
+    global removed_blocks
     for y in range(len(occupied_blocks)):
         for x in culloms:
+            if occupied_blocks[y][x] == 1:
+                removed_blocks += 1
             occupied_blocks[y][x] = 0
 
 
 def remove_rows(rows):
+    global removed_blocks
     for y in rows:
         row = occupied_blocks[y]
         for x in range(len(row)):
+            if occupied_blocks[y][x] == 1:
+                removed_blocks += 1
             occupied_blocks[y][x] = 0
 
 
 def remove_squares(squares):
+    global removed_blocks
     for square in squares:
         def_x = (square % 3) * 3
+        def_y = square - (square % 3)
         for i in range(3):
-            y = square + i
+            y = def_y + i
             for j in range(3):
                 x = def_x + j
+                if occupied_blocks[y][x] == 1:
+                    removed_blocks += 1
                 occupied_blocks[y][x] = 0
 
 
