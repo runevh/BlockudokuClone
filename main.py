@@ -23,6 +23,7 @@ def main():
         render_fps(screen, fps)
         check_events()
         clock.tick()
+        game.update_removal()
         game.render(screen)
         game.update_hold(screen)
         pygame.display.flip()

@@ -1,4 +1,6 @@
 import random
+from math import floor
+
 import pygame
 import util
 import block
@@ -10,9 +12,9 @@ new_blocks = []
 
 def init_blocks():
     generate_new_blocks()
-    for _ in range(0, 9):
+    for _ in range(9):
         row = []
-        for _ in range(0, 9):
+        for _ in range(9):
             row.append(0)
         occupied_blocks.append(row)
 
@@ -113,7 +115,7 @@ def get_raster_block(x_cord, y_cord):
 
 
 def get_block_state(x_cord, y_cord):
-    occ = (occupied_blocks[y_cord])[x_cord]
+    occ = occupied_blocks[y_cord][x_cord]
     return occ
 
 
@@ -151,6 +153,79 @@ def stop_hold():
 
     selected_block = 0
     temp_index = -1
+
+
+def update_removal():
+    rows_n = check_rows_for_completion()
+    collums = check_collums_for_completion()
+    squares = check_squares_for_completion()
+    remove_culloms(collums)
+    remove_rows(rows_n)
+
+
+def check_squares_for_completion():
+    result = []
+    # int(len(occupied_blocks) / 3)
+    temp = [1, 1, 1, 1, 1, 1, 1, 1, 1]
+    for i in range(3):
+        for j in range(3):
+            y = i * 3 + j
+            for x in range(0, 9):
+                square = i * 3 + int(floor(x / 3))
+                if temp[square] == 0:
+                    continue
+                temp[square] = occupied_blocks[y][x]
+                if j == 2 and 0 == (x + 1) % 3:
+                    if temp[square] == 1:
+                        result.append(square)
+
+    return result
+
+
+def check_rows_for_completion():
+    # Check for rows
+    n_rows = []
+    for i in range(len(occupied_blocks)):
+        row_complete = True
+        rows = occupied_blocks[i]
+        for x in rows:
+            if x == 0:
+                row_complete = False
+                break
+        if row_complete:
+            print(i)
+            n_rows.append(i)
+    return n_rows
+
+
+def check_collums_for_completion():
+    # Check for rows
+    collums = []
+    temp = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    for y in range(len(occupied_blocks)):
+        row = occupied_blocks[y]
+        for x in range(len(row)):
+            if temp[x] == 0:
+                continue
+            temp[x] = row[x]
+            if y == 8:
+                if row[x] == 1:
+                    collums.append(x)
+    return collums
+
+
+def remove_culloms(culloms):
+    global occupied_blocks
+    for y in range(len(occupied_blocks)):
+        for x in culloms:
+            occupied_blocks[y][x] = 0
+
+
+def remove_rows(rows):
+    for y in rows:
+        row = occupied_blocks[y]
+        for x in range(len(row)):
+            occupied_blocks[y][x] = 0
 
 
 def render(screen):
