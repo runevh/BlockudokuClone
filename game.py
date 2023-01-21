@@ -161,11 +161,11 @@ def update_removal():
     squares = check_squares_for_completion()
     remove_culloms(collums)
     remove_rows(rows_n)
+    remove_squares(squares)
 
 
 def check_squares_for_completion():
     result = []
-    # int(len(occupied_blocks) / 3)
     temp = [1, 1, 1, 1, 1, 1, 1, 1, 1]
     for i in range(3):
         for j in range(3):
@@ -183,7 +183,6 @@ def check_squares_for_completion():
 
 
 def check_rows_for_completion():
-    # Check for rows
     n_rows = []
     for i in range(len(occupied_blocks)):
         row_complete = True
@@ -193,13 +192,11 @@ def check_rows_for_completion():
                 row_complete = False
                 break
         if row_complete:
-            print(i)
             n_rows.append(i)
     return n_rows
 
 
 def check_collums_for_completion():
-    # Check for rows
     collums = []
     temp = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     for y in range(len(occupied_blocks)):
@@ -215,7 +212,6 @@ def check_collums_for_completion():
 
 
 def remove_culloms(culloms):
-    global occupied_blocks
     for y in range(len(occupied_blocks)):
         for x in culloms:
             occupied_blocks[y][x] = 0
@@ -226,6 +222,16 @@ def remove_rows(rows):
         row = occupied_blocks[y]
         for x in range(len(row)):
             occupied_blocks[y][x] = 0
+
+
+def remove_squares(squares):
+    for square in squares:
+        def_x = (square % 3) * 3
+        for i in range(3):
+            y = square + i
+            for j in range(3):
+                x = def_x + j
+                occupied_blocks[y][x] = 0
 
 
 def render(screen):
