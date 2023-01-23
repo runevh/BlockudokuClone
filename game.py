@@ -12,12 +12,12 @@ score = 0
 
 
 def init_blocks():
-    generate_new_blocks()
     for _ in range(9):
         row = []
         for _ in range(9):
             row.append(0)
         occupied_blocks.append(row)
+    generate_new_blocks()
 
 
 def render_score(screen):
@@ -37,17 +37,22 @@ def render_blocks(screen):
 def generate_new_blocks():
     new_blocks.clear()
     for _ in range(0, 3):
-        new_blocks.append(block.get_random_block())
+        b = block.get_random_block()
+        new_blocks.append([b, check_for_free_spot(b)])
 
 
 def render_new_blocks(screen):
     for i in range(0, 3):
-        b = new_blocks[i]
+        b = new_blocks[i][0]
         if b == 0:
             continue
 
+        color = util.Color.BLACK.value
+        if not new_blocks[i][1]:
+            color = util.Color.LIGHTGRAY.value
+
         b.render(screen, (400 / 3) * (i + 1) - ((b.get_width() * 23) / 2) - 400 / 6, 395 - ((b.get_height() * 23) / 2),
-                 23)
+                 23, color)
 
 
 held = False
@@ -80,18 +85,17 @@ def start_hold():
     held = True
     coords = pygame.mouse.get_pos()
     for i in range(0, 3):
-        b = new_blocks[i]
+        b = new_blocks[i][0]
         if is_clicked(coords, i, b):
             selected_block = b
             temp_index = i
-            new_blocks[i] = 0
+            new_blocks[i][0] = 0
             break
 
 
 def update_hold(screen):
     if not held:
         return
-
     if selected_block == 0:
         return
     coords = pygame.mouse.get_pos()
@@ -119,8 +123,7 @@ def get_raster_block(x_cord, y_cord):
 
 
 def get_block_state(x_cord, y_cord):
-    occ = occupied_blocks[y_cord][x_cord]
-    return occ
+    return occupied_blocks[y_cord][x_cord]
 
 
 def get_free_places():
@@ -154,7 +157,7 @@ def stop_hold():
     if temp_index == -1:
         return
 
-    new_blocks[temp_index] = selected_block
+    new_blocks[temp_index][0] = selected_block
 
     succesfully_placed = False
 
@@ -163,13 +166,14 @@ def stop_hold():
         occupied_blocks[r[1]][r[0]] = 1
 
     if succesfully_placed:
-        new_blocks[temp_index] = 0
+        new_blocks[temp_index][0] = 0
         score += selected_block.get_amount_of_blocks()
         all_blocks_placed = True
         for b in new_blocks:
-            if b != 0:
+            b[1] = check_for_free_spot(b[0])
+            print(b[1])
+            if b[0] != 0:
                 all_blocks_placed = False
-                break
         if all_blocks_placed:
             generate_new_blocks()
 
@@ -214,6 +218,25 @@ def check_squares_for_completion():
                         result.append(square)
 
     return result
+
+
+def check_for_free_spot(b):
+    if b == 0:
+        print("test")
+        return False
+    for y in range(len(occupied_blocks)):
+        for x in range(len(occupied_blocks[y])):
+            for coord in b.get_block_shape():
+                t_x = coord[0]
+                t_y = coord[1]
+                if t_x + x < 0 or t_y + y < 0:
+                    break
+                if t_x + x > 8 or t_y + y > 8:
+                    break
+                if occupied_blocks[t_y + y][t_x + x] == 1:
+                    break
+            return True
+    return False
 
 
 def check_rows_for_completion():

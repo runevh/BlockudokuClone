@@ -53,9 +53,9 @@ class Block:
         else:
             return self.width
 
-    def render(self, screen, x, y, new_size=size):
+    def render(self, screen, x, y, new_size=size, color=util.Color.BLACK.value):
         for coord in self.get_block_shape():
-            pygame.draw.rect(screen, util.Color.BLACK.value,
+            pygame.draw.rect(screen, color,
                              pygame.Rect(x + coord[0] * new_size, y + coord[1] * new_size, new_size, new_size))
 
     def get_block_shape(self):
